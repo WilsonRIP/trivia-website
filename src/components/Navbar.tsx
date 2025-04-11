@@ -5,12 +5,14 @@ import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ThemeToggle } from './ThemeToggle'
 import { useState } from 'react'
-import { Menu, X, Brain, LightbulbIcon, Home } from 'lucide-react'
+import { Menu, X, Brain, LightbulbIcon, Home, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/components/auth/AuthContext'
 
 export default function Navbar() {
   const pathname = usePathname()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { user, signOut } = useAuth()
 
   const navItems = [
     { label: 'Home', href: '/', icon: <Home className="h-4 w-4" /> },
@@ -79,7 +81,27 @@ export default function Navbar() {
               )
             })}
           </ul>
-          <ThemeToggle />
+
+          <div className="flex items-center gap-3">
+            {user ? (
+              <>
+                <Link href="/profile">
+                  <Button variant="outline" size="sm" className="gap-1.5">
+                    <User className="h-4 w-4" />
+                    Profile
+                  </Button>
+                </Link>
+                <Button variant="ghost" size="sm" onClick={signOut}>
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <Link href="/auth">
+                <Button size="sm">Sign In</Button>
+              </Link>
+            )}
+            <ThemeToggle />
+          </div>
         </nav>
 
         {/* Mobile menu button */}
@@ -135,6 +157,43 @@ export default function Navbar() {
                 </li>
               )
             })}
+
+            {user ? (
+              <>
+                <li>
+                  <Link
+                    href="/profile"
+                    className="hover:text-primary flex items-center gap-2 py-2 text-base font-medium transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <User className="h-4 w-4" />
+                    Profile
+                  </Link>
+                </li>
+                <li>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2 font-medium"
+                    onClick={() => {
+                      signOut()
+                      setIsMenuOpen(false)
+                    }}
+                  >
+                    Sign Out
+                  </Button>
+                </li>
+              </>
+            ) : (
+              <li>
+                <Link
+                  href="/auth"
+                  className="hover:text-primary flex items-center gap-2 py-2 text-base font-medium transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Sign In / Sign Up
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
       </motion.div>

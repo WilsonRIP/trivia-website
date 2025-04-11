@@ -14,9 +14,8 @@ export function generateStaticParams() {
   }))
 }
 
-export default async function TriviaPage({ params }: PageProps) {
-  // Ensure params is properly awaited by using an async function
-  const categoryId = await params.categoryId
+export default function TriviaPage({ params }: PageProps) {
+  const categoryId = params.categoryId
   const category = categories.find((c) => c.id === categoryId)
 
   if (!category) {

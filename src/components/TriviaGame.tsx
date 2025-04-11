@@ -12,13 +12,17 @@ import {
 import Link from 'next/link'
 import { Category } from '@/lib/types'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Clock, Trophy, Home } from 'lucide-react'
+import { ArrowLeft, Clock, Trophy, Home, LogIn } from 'lucide-react'
+import { useAuth } from '@/components/auth/AuthContext'
+import { supabase } from '@/lib/supabase'
+import { toast } from 'sonner'
 
 interface TriviaGameProps {
   category: Category
 }
 
 export default function TriviaGame({ category }: TriviaGameProps) {
+  const { user } = useAuth()
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [selectedOption, setSelectedOption] = useState<number | null>(null)
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
@@ -26,6 +30,8 @@ export default function TriviaGame({ category }: TriviaGameProps) {
   const [gameComplete, setGameComplete] = useState(false)
   const [timeLeft, setTimeLeft] = useState(30)
   const [gameStarted, setGameStarted] = useState(false)
+  const [isSavingResult, setIsSavingResult] = useState(false)
+  const [resultSaved, setResultSaved] = useState(false)
 
   const currentQuestion = category.questions[currentQuestionIndex]
 
@@ -70,6 +76,10 @@ export default function TriviaGame({ category }: TriviaGameProps) {
   const handleNextQuestion = () => {
     if (currentQuestionIndex >= category.questions.length - 1) {
       setGameComplete(true)
+      // Save result to Supabase if user is logged in
+      if (user) {
+        saveResult()
+      }
     } else {
       setCurrentQuestionIndex(currentQuestionIndex + 1)
       setSelectedOption(null)
@@ -85,6 +95,33 @@ export default function TriviaGame({ category }: TriviaGameProps) {
     setScore(0)
     setGameComplete(false)
     setTimeLeft(30)
+  }
+
+  const saveResult = async () => {
+    if (!user || resultSaved) return
+
+    setIsSavingResult(true)
+    try {
+      const { error } = await supabase.from('quiz_results').insert({
+        user_id: user.id,
+        category_id: category.id,
+        score: score,
+        total_questions: category.questions.length,
+      })
+
+      if (error) {
+        console.error('Error saving quiz result:', error)
+        toast.error('Failed to save quiz result')
+      } else {
+        setResultSaved(true)
+        toast.success('Quiz result saved to your profile!')
+      }
+    } catch (err) {
+      console.error('Error saving quiz result:', err)
+      toast.error('Failed to save quiz result')
+    } finally {
+      setIsSavingResult(false)
+    }
   }
 
   if (!gameStarted) {
@@ -219,7 +256,7 @@ export default function TriviaGame({ category }: TriviaGameProps) {
               <p className="break-words">{message}</p>
             </motion.div>
             <motion.div
-              className="flex justify-center gap-4"
+              className="flex flex-wrap justify-center gap-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.9 }}
@@ -237,7 +274,24 @@ export default function TriviaGame({ category }: TriviaGameProps) {
                   Back to Categories
                 </Button>
               </Link>
+              {!user && (
+                <Link href="/auth">
+                  <Button variant="default" className="gap-1">
+                    <LogIn className="h-4 w-4" />
+                    Sign In to Save Results
+                  </Button>
+                </Link>
+              )}
             </motion.div>
+            {user && (
+              <p className="text-muted-foreground mt-4 text-sm">
+                {resultSaved
+                  ? 'Your score has been saved to your profile!'
+                  : isSavingResult
+                    ? 'Saving your score...'
+                    : 'Failed to save your score. You can try again later from your profile.'}
+              </p>
+            )}
           </CardContent>
         </Card>
       </motion.div>

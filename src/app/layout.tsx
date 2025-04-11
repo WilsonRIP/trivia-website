@@ -2,8 +2,10 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
+import { AuthProvider } from '@/components/auth/AuthContext'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import { Toaster } from 'sonner'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -59,17 +61,20 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <a
-            href="#main-content"
-            className="focus:bg-background sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4"
-          >
-            Skip to content
-          </a>
-          <Navbar />
-          <main id="main-content" className="flex-grow">
-            {children}
-          </main>
-          <Footer />
+          <AuthProvider>
+            <a
+              href="#main-content"
+              className="focus:bg-background sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4"
+            >
+              Skip to content
+            </a>
+            <Navbar />
+            <main id="main-content" className="flex-grow">
+              {children}
+            </main>
+            <Footer />
+            <Toaster position="top-center" />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
