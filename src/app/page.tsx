@@ -1,55 +1,95 @@
+// Import necessary components and data
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/button' // Assuming shadcn/ui Button
 import {
   Card,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { categories } from '@/lib/data'
+} from '@/components/ui/card' // Assuming shadcn/ui Card components
+import { categories } from '@/lib/data' // Assuming categories data is imported
 
+/**
+ * Home component: Renders the main landing page for the Trivia Master application.
+ * Displays a hero section, category selection, and instructions on how to play.
+ */
 export default function Home() {
   return (
+    // Main container with gradient background and padding
     <div className="from-background to-muted min-h-screen bg-gradient-to-b px-4 py-8 sm:px-6 lg:px-8">
       <main className="mx-auto max-w-7xl">
-        <div className="mb-16 text-center">
-          <h1 className="text-foreground mb-4 text-4xl font-bold tracking-tight sm:text-6xl">
+        {/* Hero Section */}
+        <section aria-labelledby="hero-title" className="mb-16 text-center">
+          <h1
+            id="hero-title"
+            className="text-foreground mb-4 text-4xl font-bold tracking-tight sm:text-6xl"
+          >
+            {/* Highlight "Trivia" with primary color */}
             <span className="text-primary">Trivia</span> Master
           </h1>
           <p className="text-muted-foreground mx-auto max-w-2xl text-xl">
             Test your knowledge with our unique collection of trivia topics from
-            Trump quotes to world events
+            Trump quotes to world events.
           </p>
-        </div>
+        </section>
 
-        <div className="mt-12" id="categories">
-          <h2 className="mb-8 text-center text-2xl font-bold">
+        {/* Categories Section */}
+        <section
+          aria-labelledby="categories-title"
+          className="mt-12 scroll-mt-20"
+          id="categories"
+        >
+          <h2
+            id="categories-title"
+            className="mb-8 text-center text-2xl font-bold"
+          >
             Choose a Category
           </h2>
+          {/* Grid layout for category cards */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* Map through categories data to create cards */}
             {categories.map((category) => (
               <Card
                 key={category.id}
-                className="h-full transform transition-all duration-300 hover:scale-105"
+                // Added flex column layout to ensure footer is at the bottom
+                // Added overflow hidden for better rendering consistency
+                className="flex h-full transform flex-col overflow-hidden rounded-lg border transition-all duration-300 hover:scale-105 hover:shadow-lg"
               >
-                <CardHeader>
+                <CardHeader className="flex-grow">
+                  {' '}
+                  {/* flex-grow pushes footer down */}
+                  {/* Display category icon */}
                   <div className="mb-4 text-4xl">{category.icon}</div>
+                  {/* Display category title */}
                   <CardTitle>{category.title}</CardTitle>
+                  {/* Display category description */}
                   <CardDescription>{category.description}</CardDescription>
                 </CardHeader>
                 <CardFooter>
-                  <Link href={`/trivia/${category.id}`} className="w-full">
+                  {/* Link to the specific trivia category page */}
+                  <Link
+                    href={`/trivia/${category.id}`}
+                    className="w-full"
+                    passHref
+                  >
                     <Button className="w-full">Start Quiz</Button>
                   </Link>
                 </CardFooter>
               </Card>
             ))}
           </div>
-        </div>
+        </section>
 
-        <div className="mt-24 text-center" id="how-to-play">
-          <h2 className="mb-4 text-2xl font-bold">How to Play</h2>
+        {/* How to Play Section */}
+        <section
+          aria-labelledby="how-to-play-title"
+          className="mt-24 scroll-mt-20 text-center"
+          id="how-to-play"
+        >
+          <h2 id="how-to-play-title" className="mb-4 text-2xl font-bold">
+            How to Play
+          </h2>
           <div className="text-muted-foreground mx-auto max-w-3xl">
             <p className="mb-4">
               Select a category that interests you, answer multiple-choice
@@ -58,15 +98,23 @@ export default function Home() {
             </p>
             <p>Challenge your friends to beat your high score!</p>
           </div>
+          {/* Button to quickly start a quiz (links to categories section) */}
           <div className="mt-8">
-            <Link href={`/trivia/${categories[0].id}`}>
+            <Link href="#categories">
+              {' '}
+              {/* Link to the categories section ID */}
               <Button size="lg" className="bg-primary hover:bg-primary/90">
-                Start Now
+                Choose Category
               </Button>
             </Link>
           </div>
-        </div>
+        </section>
       </main>
+
+      {/* Optional: Add a Footer component here */}
+      {/* <footer className="mt-32 text-center text-sm text-muted-foreground">
+        <p>&copy; {new Date().getFullYear()} Trivia Master. All rights reserved.</p>
+      </footer> */}
     </div>
   )
 }
